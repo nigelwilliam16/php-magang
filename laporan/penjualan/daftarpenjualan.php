@@ -9,18 +9,24 @@ if($conn->connect_error) {
 setlocale(LC_ALL, 'IND');
 
 extract($_POST);
-
 $sql = "SELECT nota_beli.id, nota_beli.tanggal, nota_beli.waktu, SUM(nota_beli_product.quantity) AS jumlah_barang,
-SUM(nota_beli_product.total) AS total_pembelian, nota_beli.id_cabang, cabang.nama_cabang FROM nota_beli INNER JOIN nota_beli_product 
-ON nota_beli.id = nota_beli_product.id_nota_beli INNER JOIN cabang ON nota_beli.id_cabang = cabang.id GROUP BY nota_beli.id";
+SUM(nota_beli_product.total_harga) AS total_pembelian, nota_beli.foto, nota_beli.id_cabang, cabang.nama_cabang, nota_beli.username, 
+account.nama_depan, account.nama_belakang FROM nota_beli INNER JOIN nota_beli_product 
+ON nota_beli.id = nota_beli_product.id_nota_beli INNER JOIN cabang ON nota_beli.id_cabang = cabang.id 
+INNER JOIN account ON nota_beli.username = account.username WHERE (nota_beli.id LIKE '%$cari%' OR account.nama_depan LIKE '%$cari%' OR account.nama_belakang LIKE '%$cari%') 
+AND nota_beli.tanggal BETWEEN ? AND ? GROUP BY nota_beli.id;";
 
 $stmt = $conn->prepare($sql);
+$stmt->bind_param("ss",$startdate,$enddate);
 $stmt->execute();
 $result = $stmt->get_result();
 $data=[];
 if($result->num_rows > 0) {
   while($r=mysqli_fetch_assoc($result)) {    
-    $r['tanggal'] = strftime( "%d %B %Y", $r['tanggal']->getTimestamp());
+    $tahun = substr($r['tanggal'], 0,4);
+    $bulan = substr($r['tanggal'], 5,2);
+    $tanggal = substr($r['tanggal'], 8,2);
+    $r['tanggal'] = strftime( "%A, %d %B %Y", mktime(0,0,0,$bulan,$tanggal,$tahun));
     array_push($data,$r);
   }
   $arr=["result"=>"success","data"=>$data];

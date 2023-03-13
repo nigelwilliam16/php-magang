@@ -10,9 +10,11 @@ setlocale(LC_ALL, 'IND');
 
 extract($_POST);
 $sql = "SELECT nota_beli.id, nota_beli.tanggal, nota_beli.waktu, SUM(nota_beli_product.quantity) AS jumlah_barang,
-SUM(nota_beli_product.total) AS total_pembelian, nota_beli.foto, nota_beli.id_cabang, cabang.nama_cabang, nota_beli.username, account.nama_depan, account.nama_belakang FROM nota_beli INNER JOIN nota_beli_product 
+SUM(nota_beli_product.total_harga) AS total_pembelian, nota_beli.foto, nota_beli.id_cabang, cabang.nama_cabang, nota_beli.username, 
+account.nama_depan, account.nama_belakang FROM nota_beli INNER JOIN nota_beli_product 
 ON nota_beli.id = nota_beli_product.id_nota_beli INNER JOIN cabang ON nota_beli.id_cabang = cabang.id 
-INNER JOIN account ON nota_beli.username = account.username WHERE nota_beli.tanggal BETWEEN ? AND ? GROUP BY nota_beli.id;";
+INNER JOIN account ON nota_beli.username = account.username WHERE (nota_beli.id LIKE '%$cari%' OR account.nama_depan LIKE '%$cari%' OR account.nama_belakang LIKE '%$cari%') 
+AND nota_beli.tanggal BETWEEN ? AND ? GROUP BY nota_beli.id;";
 
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("ss",$startdate,$enddate);
@@ -36,7 +38,4 @@ echo json_encode($arr);
 
   $stmt->close();
   $conn->close();
-
-  //SELECT nota_beli.id, nota_beli.tanggal, nota_beli.waktu, SUM(nota_beli_product.quantity) AS jumlah_barang, SUM(nota_beli_product.total) AS total_pembelian, nota_beli.foto, cabang.nama_cabang, account.nama_depan, account.nama_belakang FROM nota_beli INNER JOIN nota_beli_product ON nota_beli.id = nota_beli_product.id_nota_beli INNER JOIN cabang ON nota_beli.id_cabang = cabang.id INNER JOIN account ON nota_beli.username = account.username WHERE nota_beli_product.id_nota_beli = '50xcfgjhh10lk';
-  //SELECT nota_beli_product.id_nota_beli, nota_beli.tanggal, nota_beli.waktu, product.jenis, product.harga, nota_beli_product.quantity, nota_beli_product.total FROM nota_beli INNER JOIN nota_beli_product ON nota_beli.id = nota_beli_product.id_nota_beli INNER JOIN product ON product.id = nota_beli_product.id_product WHERE nota_beli_product.id_nota_beli = '50xcfgjhh10lk';
 ?>
