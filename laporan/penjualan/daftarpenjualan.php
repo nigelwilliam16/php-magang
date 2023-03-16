@@ -10,8 +10,8 @@ setlocale(LC_ALL, 'IND');
 
 extract($_POST);
 $sql = "SELECT notal_jual.id, notal_jual.tanggal, notal_jual.waktu, SUM(notal_jual_product.quantity) AS jumlah_barang,
-notal_jual.ppn, notal_jual.diskon, SUM(notal_jual_product.total_harga) AS total_penjualan, notal_jual.foto, notal_jual.id_outlet,
-outlet.nama_toko, notal_jual.username, account.nama_depan, account.nama_belakang 
+notal_jual.ppn, notal_jual.diskon, SUM(notal_jual_product.harga*notal_jual_product.quantity) AS total_penjualan, notal_jual.foto, notal_jual.id_outlet,
+outlet.nama_toko, outlet.alamat, notal_jual.username, account.nama_depan, account.nama_belakang 
 FROM notal_jual INNER JOIN notal_jual_product ON notal_jual.id = notal_jual_product.id_nota_jual 
 INNER JOIN outlet ON notal_jual.id_outlet = outlet.id INNER JOIN account ON notal_jual.username = account.username 
 WHERE (notal_jual.id LIKE '%$cari%' OR account.nama_depan LIKE '%$cari%' OR account.nama_belakang LIKE '%$cari%' OR 
