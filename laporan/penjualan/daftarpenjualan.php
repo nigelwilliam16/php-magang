@@ -15,7 +15,7 @@ outlet.nama_toko, outlet.alamat, notal_jual.username, account.nama_depan, accoun
 FROM notal_jual INNER JOIN notal_jual_product ON notal_jual.id = notal_jual_product.id_nota_jual 
 INNER JOIN outlet ON notal_jual.id_outlet = outlet.id INNER JOIN account ON notal_jual.username = account.username 
 WHERE (notal_jual.id LIKE '%$cari%' OR account.nama_depan LIKE '%$cari%' OR account.nama_belakang LIKE '%$cari%' OR 
-outlet.nama_toko LIKE '%$cari%') AND notal_jual.tanggal BETWEEN ? AND ? GROUP BY notal_jual.id;";
+outlet.nama_toko LIKE '%$cari%') AND notal_jual.tanggal BETWEEN ? AND ? GROUP BY notal_jual.id ORDER BY notal_jual.waktu DESC";
 
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("ss",$startdate,$enddate);
