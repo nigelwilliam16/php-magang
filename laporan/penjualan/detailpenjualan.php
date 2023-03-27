@@ -28,7 +28,7 @@ if($result->num_rows > 0) {
 
   $sql2 = "SELECT notal_jual_product.id_product, product.jenis, notal_jual_product.harga, notal_jual_product.quantity, 
   (notal_jual_product.harga * notal_jual_product.quantity) AS total_harga
-  FROM notal_jual_product INNER JOIN product ON notal_jual_product.id_product = product.id   WHERE notal_jual_product.id_nota_jual = ?";
+  FROM notal_jual_product INNER JOIN product ON notal_jual_product.id_product = product.id WHERE notal_jual_product.id_nota_jual = ?";
 
   $stmt2 = $conn->prepare($sql2);
   $stmt2->bind_param("s",$id);
