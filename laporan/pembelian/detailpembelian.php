@@ -9,11 +9,12 @@ if($conn->connect_error) {
 setlocale(LC_ALL, 'IND');
 
 extract($_POST);
-$sql = "SELECT nota_beli.id, nota_beli.tanggal, nota_beli.waktu, SUM(nota_beli_product.quantity) AS jumlah_barang,
-SUM(nota_beli_product.harga * nota_beli_product.quantity) AS total_pembelian, nota_beli.foto, nota_beli.id_cabang, cabang.nama_cabang, nota_beli.username, 
-account.nama_depan, account.nama_belakang FROM nota_beli INNER JOIN nota_beli_product ON nota_beli.id = nota_beli_product.id_nota_beli 
-INNER JOIN cabang ON nota_beli.id_cabang = cabang.id INNER JOIN account ON nota_beli.username = account.username 
-WHERE nota_beli_product.id_nota_beli = ?";
+$sql = "SELECT nota_beli.id, nota_beli.tanggal, nota_beli.waktu, SUM(nota_beli_product.quantity) AS jumlah_barang, nota_beli.foto,
+SUM(nota_beli_product.harga * nota_beli_product.quantity) AS total_pembelian, nota_beli.diskon, nota_beli.ppn, nota_beli.id_cabang, 
+nota_beli.username, account.nama_depan, account.nama_belakang, nota_beli.id_supplier, supplier.nama_supplier, cabang.nama_cabang 
+FROM nota_beli INNER JOIN nota_beli_product ON nota_beli.id = nota_beli_product.id_nota_beli INNER JOIN cabang ON 
+nota_beli.id_cabang = cabang.id INNER JOIN account ON nota_beli.username = account.username INNER JOIN supplier ON 
+nota_beli.id_supplier = supplier.id WHERE nota_beli_product.id_nota_beli = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("s",$id);
 $stmt->execute();
@@ -25,9 +26,9 @@ if($result->num_rows > 0) {
   $tanggal = substr($r['tanggal'], 8,2);
   $r['tanggal'] = strftime( "%A %d %B %Y", mktime(0,0,0,$bulan,$tanggal,$tahun));
 
-  $sql2 = "SELECT nota_beli_product.id_product, product.jenis, nota_beli_product.harga, nota_beli_product.quantity,
-  nota_beli_product.total_harga FROM nota_beli_product INNER JOIN product ON nota_beli_product.id_product = product.id 
-  WHERE nota_beli_product.id_nota_beli = ?";
+  $sql2 = "SELECT nota_beli_product.id_product, product.jenis, nota_beli_product.harga, nota_beli_product.quantity, 
+  (nota_beli_product.quantity*nota_beli_product.harga) AS total_harga 
+  FROM nota_beli_product INNER JOIN product ON nota_beli_product.id_product = product.id WHERE nota_beli_product.id_nota_beli = ?";
 
   $stmt2 = $conn->prepare($sql2);
   $stmt2->bind_param("s",$id);

@@ -9,7 +9,7 @@ if($conn->connect_error) {
 setlocale(LC_ALL, 'IND');
 
 extract($_POST);
-$sql = "SELECT event.id, event.nama, event.lokasi, event.tanggal, event.laporan, event.status_laporan, 
+$sql = "SELECT event.id, event.nama, event.lokasi, event.tanggal, event.proposal, event.status_proposal, 
 SUM(event_jual_product.quantity) AS jumlah_penjualan, SUM(event_jual_product.harga*event_jual_product.quantity) AS total_penjualan
 FROM event INNER JOIN event_jual_product ON event_jual_product.event_id = event.id 
 WHERE (event.id LIKE '%$cari%' OR event.nama LIKE '%$cari%')
@@ -22,8 +22,7 @@ $result = $stmt->get_result();
 $data=[];
 if($result->num_rows > 0) {
   while($r=mysqli_fetch_assoc($result)) {    
-    $sql2 = "SELECT SUM(kebutuhan_event.quantity) AS jumlah_kebutuhan, 
-    SUM(kebutuhan_event.quantity*kebutuhan_event.harga) AS total_pengeluaran 
+    $sql2 = "SELECT SUM(kebutuhan_event.quantity) AS jumlah_kebutuhan    
     FROM kebutuhan_event WHERE event_id = ?";
     $stmt2 = $conn->prepare($sql2);
     $stmt2->bind_param("s",$r['id']);
@@ -36,7 +35,6 @@ if($result->num_rows > 0) {
         $tanggal = substr($r['tanggal'], 8,2);
         $r['tanggal'] = strftime( "%A, %d %B %Y", mktime(0,0,0,$bulan,$tanggal,$tahun));
         $r['jumlah_kebutuhan'] = $r2['jumlah_kebutuhan'];
-        $r['total_pengeluaran'] = $r2['total_pengeluaran'];
 
         $personil=[];
         $sql3 = "SELECT personil_event.account_username, account.nama_depan, account.nama_belakang, personil_event.role 
