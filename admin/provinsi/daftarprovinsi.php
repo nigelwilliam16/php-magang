@@ -7,10 +7,8 @@ if($conn->connect_error) {
   $arr= ["result"=>"error","message"=>"unable to connect"];
 }
 extract($_POST);
-$sql = "SELECT outlet.id, outlet.nama_toko, outlet.alamat, outlet.kodepos, outlet.id_tipe, tipe_outlet.keterangan, 
-id_kelurahan, kelurahan.kelurahan FROM outlet INNER JOIN kelurahan ON outlet.id_kelurahan = kelurahan.id 
-INNER JOIN tipe_outlet ON tipe_outlet.id = outlet.id_tipe WHERE outlet.nama_toko LIKE '%$cari%'";
 
+$sql = "SELECT * FROM provinsi WHERE provinsi.provinsi LIKE '%$cari%'";
 $stmt = $conn->prepare($sql);
 $stmt->execute();
 $result = $stmt->get_result();
