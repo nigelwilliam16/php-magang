@@ -28,4 +28,7 @@ echo json_encode($arr);
 
   $stmt->close();
   $conn->close();
+
+  //SELECT outlet.id, outlet.nama_toko, outlet.alamat, outlet.kodepos, outlet.id_tipe, tipe_outlet.keterangan, id_kelurahan, kelurahan.kelurahan, kelurahan.kecamatan_id, kecamatan.kecamatan FROM outlet INNER JOIN kelurahan ON outlet.id_kelurahan = kelurahan.id INNER JOIN tipe_outlet ON tipe_outlet.id = outlet.id_tipe INNER JOIN kecamatan ON kelurahan.kecamatan_id = kecamatan.id;
+
 ?>
