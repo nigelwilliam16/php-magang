@@ -2,7 +2,7 @@
 header("Access-Control-Allow-Origin: *"); 
 $arr=null;
 
-$conn = new mysqli("localhost", "root","","pt_coronet_crown");
+$conn = new mysqli("localhost", "n1561248_staff_coronet","sU[=]bRd;jm$","n1561248_pt_coronet_crown");
 if($conn->connect_error) {
   $arr= ["result"=>"error","message"=>"unable to connect"];
 }
@@ -18,7 +18,7 @@ if($_POST['idjabatan'] == "3") {
   WHERE notal_jual.username = ? GROUP BY notal_jual.id ORDER BY notal_jual.waktu DESC LIMIT ?";
   $stmt = $conn->prepare($sql);
   $stmt->bind_param("ss",$username, $limit);
-} else if ($_POST['idjabatan'] == "4") {
+} elseif ($_POST['idjabatan'] == "4") {
   $sql = "SELECT notal_jual.id, notal_jual.tanggal, notal_jual.waktu, SUM(notal_jual_product.quantity) AS jumlah_barang,
   notal_jual.ppn, notal_jual.diskon, SUM(notal_jual_product.harga*notal_jual_product.quantity) AS total_penjualan, notal_jual.foto, notal_jual.id_outlet,
   outlet.nama_toko, outlet.alamat, notal_jual.username, account.nama_depan, account.nama_belakang 

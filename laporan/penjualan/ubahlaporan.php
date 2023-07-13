@@ -2,7 +2,7 @@
 header("Access-Control-Allow-Origin: *"); 
 $arr=null;
 
-$conn = new mysqli("localhost", "root","","pt_coronet_crown");
+$conn = new mysqli("localhost", "n1561248_staff_coronet","sU[=]bRd;jm$","n1561248_pt_coronet_crown");
 if($conn->connect_error) {
   $arr= ["result"=>"error","message"=>"unable to connect"];
 }
