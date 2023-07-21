@@ -9,11 +9,11 @@ if($conn->connect_error) {
 setlocale(LC_ALL, 'IND');
 
 extract($_POST);
-$sql = "SELECT event.id, event.nama, event.lokasi, event.tanggal, event.laporan, event.status_laporan, 
+$sql = "SELECT event.id, event.nama, event.lokasi, event.tanggal_pengajuan, event.status_laporan, event.tanggal,
 SUM(event_jual_product.quantity) AS jumlah_penjualan, SUM(event_jual_product.harga*event_jual_product.quantity) AS total_penjualan
 FROM event INNER JOIN event_jual_product ON event_jual_product.event_id = event.id 
 WHERE (event.id LIKE '%$cari%' OR event.nama LIKE '%$cari%')
-AND event.tanggal BETWEEN ? AND ? GROUP BY event.id ORDER BY event.tanggal ASC";
+AND event.tanggal_pengajuan BETWEEN ? AND ? GROUP BY event.id ORDER BY event.tanggal_pengajuan DESC";
 
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("ss",$startdate,$enddate);
@@ -35,6 +35,10 @@ if($result->num_rows > 0) {
         $bulan = substr($r['tanggal'], 5,2);
         $tanggal = substr($r['tanggal'], 8,2);
         $r['tanggal'] = strftime( "%A, %d %B %Y", mktime(0,0,0,$bulan,$tanggal,$tahun));
+        $tahun_pengajuan = substr($r['tanggal_pengajuan'], 0,4);
+        $bulan_pengajuan = substr($r['tanggal_pengajuan'], 5,2);
+        $tanggal_pengajuan = substr($r['tanggal_pengajuan'], 8,2);
+        $r['tanggal_pengajuan'] = strftime( "%A, %d %B %Y", mktime(0,0,0,$bulan_pengajuan,$tanggal_pengajuan,$tahun_pengajuan));
         $r['jumlah_kebutuhan'] = $r2['jumlah_kebutuhan'];
         $r['total_pengeluaran'] = $r2['total_pengeluaran'];
 

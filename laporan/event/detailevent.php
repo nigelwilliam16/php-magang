@@ -9,7 +9,7 @@ if($conn->connect_error) {
 setlocale(LC_ALL, 'IND');
 
 extract($_POST);
-$sql = "SELECT event.id, event.nama, event.tanggal, event.status_proposal, event.tujuan, event.strategi, event.latar_belakang,
+$sql = "SELECT event.id, event.nama,event.tanggal_pengajuan, event.tanggal, event.status_proposal, event.tujuan, event.strategi, event.latar_belakang,
 SUM(event_jual_product.quantity) AS jumlah_penjualan, SUM(event_jual_product.harga*event_jual_product.quantity) AS total_penjualan
 FROM event INNER JOIN event_jual_product ON event_jual_product.event_id = event.id WHERE event.id = ?";
 $stmt = $conn->prepare($sql);
@@ -21,7 +21,13 @@ if($result->num_rows > 0) {
     $tahun = substr($r['tanggal'], 0,4);
     $bulan = substr($r['tanggal'], 5,2);
     $tanggal = substr($r['tanggal'], 8,2);
-    $r['tanggal'] = strftime( "%A %d %B %Y", mktime(0,0,0,$bulan,$tanggal,$tahun));
+    $r['tanggal'] = strftime( "%A, %d %B %Y", mktime(0,0,0,$bulan,$tanggal,$tahun));
+    $tahun_pengajuan = substr($r['tanggal_pengajuan'], 0,4);
+    $bulan_pengajuan = substr($r['tanggal_pengajuan'], 5,2);
+    $tanggal_pengajuan = substr($r['tanggal_pengajuan'], 8,2);
+    $r['tanggal_pengajuan'] = strftime( "%A, %d %B %Y", mktime(0,0,0,$bulan_pengajuan,$tanggal_pengajuan,$tahun_pengajuan));
+    $r['jumlah_kebutuhan'] = $r2['jumlah_kebutuhan'];
+    $r['total_pengeluaran'] = $r2['total_pengeluaran'];
     $lokasi=[];
     $sql2 = "SELECT event.lokasi as alamat, kelurahan.kelurahan, kecamatan.kecamatan, kota.kota, provinsi.provinsi 
     FROM event INNER JOIN kelurahan ON event.kelurahan_id = kelurahan.id INNER JOIN kecamatan ON kelurahan.kecamatan_id = kecamatan.id 
@@ -51,7 +57,8 @@ if($result->num_rows > 0) {
     $r['personil'] = $personil;
     }  
     $target = [];
-    $sql4 = "SELECT * FROM target WHERE target.id_event = ?";
+    $sql4 = "SELECT target.parameter, target.perhitungan, target.bobot, target_event.target_proposal FROM target_event 
+    INNER JOIN target ON target_event.id_target = target.id WHERE target_event.id_event = ?";
     $stmt4 = $conn->prepare($sql4);
     $stmt4->bind_param("s",$id);
     $stmt4->execute();
@@ -87,6 +94,32 @@ if($result->num_rows > 0) {
         }
     $r['gimmick'] = $gimmick;
     } 
+
+    // $new_user = [];
+    // $sql6 = "SELECT * FROM akun_pengunjung WHERE akun_pengunjung.id_event = ? AND ";
+    // $stmt6 = $conn->prepare($sql6);
+    // $stmt6->bind_param("s",$id);
+    // $stmt6->execute();
+    // $result6 = $stmt6->get_result();
+    // if($result6->num_rows > 0) { 
+    //     while($r6=mysqli_fetch_assoc($result6)) {
+    //         array_push($gimmick,$r6);
+    //     }
+    // $r['new_user'] = $new_user;
+    // } 
+
+    // $old_user = [];
+    // $sql6 = "SELECT * FROM gimmick WHERE gimmick.id_event = ?";
+    // $stmt6 = $conn->prepare($sql6);
+    // $stmt6->bind_param("s",$id);
+    // $stmt6->execute();
+    // $result6 = $stmt6->get_result();
+    // if($result6->num_rows > 0) { 
+    //     while($r6=mysqli_fetch_assoc($result6)) {
+    //         array_push($gimmick,$r6);
+    //     }
+    // $r['old_user'] = $old_user;
+    // } 
     
 //   }
   $arr=["result"=>"success","data"=>$r];

@@ -6,14 +6,13 @@ $conn = new mysqli("localhost", "n1561248_staff_coronet","sU[=]bRd;jm$","n156124
 if($conn->connect_error) {
   $arr= ["result"=>"error","message"=>"unable to connect"];
 }
-setlocale(LC_ALL, 'IND');
-
+setlocale(LC_ALL, 'id_ID');
 extract($_POST);
-$sql = "SELECT event.id, event.nama, event.lokasi as alamat, event.tanggal, event.status_proposal, 
+$sql = "SELECT event.id, event.nama, event.lokasi as alamat,event.tanggal_pengajuan, event.tanggal, event.status_proposal, 
 SUM(event_jual_product.quantity) AS jumlah_penjualan, SUM(event_jual_product.harga*event_jual_product.quantity) AS total_penjualan
 FROM event INNER JOIN event_jual_product ON event_jual_product.event_id = event.id 
 WHERE (event.id LIKE '%$cari%' OR event.nama LIKE '%$cari%')
-AND event.tanggal BETWEEN ? AND ? GROUP BY event.id ORDER BY event.tanggal ASC";
+AND event.tanggal_pengajuan BETWEEN ? AND ? GROUP BY event.id ORDER BY event.tanggal_pengajuan DESC";
 
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("ss",$startdate,$enddate);
@@ -22,7 +21,16 @@ $result = $stmt->get_result();
 $data=[];
 if($result->num_rows > 0) {
   while($r=mysqli_fetch_assoc($result)) {
-    
+    $tahun = substr($r['tanggal'], 0,4);
+    $bulan = substr($r['tanggal'], 5,2);
+    $tanggal = substr($r['tanggal'], 8,2);
+    $r['tanggal'] = strftime( "%A, %d %B %Y", mktime(0,0,0,$bulan,$tanggal,$tahun));
+    $tahun_pengajuan = substr($r['tanggal_pengajuan'], 0,4);
+    $bulan_pengajuan = substr($r['tanggal_pengajuan'], 5,2);
+    $tanggal_pengajuan = substr($r['tanggal_pengajuan'], 8,2);
+    $r['tanggal_pengajuan'] = strftime( "%A, %d %B %Y", mktime(0,0,0,$bulan_pengajuan,$tanggal_pengajuan,$tahun_pengajuan));
+    $r['jumlah_kebutuhan'] = $r2['jumlah_kebutuhan'];
+    $r['total_pengeluaran'] = $r2['total_pengeluaran'];
     $personil=[];
     $sql3 = "SELECT personil_event.account_username, account.nama_depan, account.nama_belakang, personil_event.role 
     FROM personil_event INNER JOIN account ON personil_event.account_username = account.username 
