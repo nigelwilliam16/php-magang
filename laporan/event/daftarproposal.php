@@ -8,12 +8,11 @@ if($conn->connect_error) {
 }
 setlocale(LC_ALL, 'id_ID');
 extract($_POST);
-$sql = "SELECT event.id, event.nama, event.lokasi as alamat,event.tanggal_pengajuan, event.tanggal, event.status_proposal, 
-SUM(event_jual_product.quantity) AS jumlah_penjualan, SUM(event_jual_product.harga*event_jual_product.quantity) AS total_penjualan
-FROM event INNER JOIN event_jual_product ON event_jual_product.event_id = event.id 
-WHERE (event.id LIKE '%$cari%' OR event.nama LIKE '%$cari%')
+$sql = "SELECT event.id, event.nama, event.lokasi as alamat,event.tanggal_pengajuan, event.tanggal,
+(SELECT CONCAT(account.nama_depan, ' ', account.nama_belakang) FROM personil_event INNER JOIN account ON 
+personil_event.username = account.username WHERE personil_event.role = 1 AND personil_event.id_event = event.id) AS 'penanggung_jawab'
+FROM event WHERE (event.id LIKE '%$cari%' OR event.nama LIKE '%$cari%')
 AND event.tanggal_pengajuan BETWEEN ? AND ? GROUP BY event.id ORDER BY event.tanggal_pengajuan DESC";
-
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("ss",$startdate,$enddate);
 $stmt->execute();
@@ -29,24 +28,22 @@ if($result->num_rows > 0) {
     $bulan_pengajuan = substr($r['tanggal_pengajuan'], 5,2);
     $tanggal_pengajuan = substr($r['tanggal_pengajuan'], 8,2);
     $r['tanggal_pengajuan'] = strftime( "%A, %d %B %Y", mktime(0,0,0,$bulan_pengajuan,$tanggal_pengajuan,$tahun_pengajuan));
-    $r['jumlah_kebutuhan'] = $r2['jumlah_kebutuhan'];
-    $r['total_pengeluaran'] = $r2['total_pengeluaran'];
-    $personil=[];
-    $sql3 = "SELECT personil_event.account_username, account.nama_depan, account.nama_belakang, personil_event.role 
-    FROM personil_event INNER JOIN account ON personil_event.account_username = account.username 
-    WHERE personil_event.event_id = ? AND personil_event.role = 1";
-    $stmt3 = $conn->prepare($sql3);
-    $stmt3->bind_param("s",$r['id']);
-    $stmt3->execute();
-    $result3 = $stmt3->get_result();
-    if($result3->num_rows > 0) { 
-      $r3=mysqli_fetch_assoc($result3);
-      $r["username"]=$r3['account_username'];  
-      $r["nama_depan"]=$r3['nama_depan'];  
-      $r["nama_belakang"]=$r3['nama_belakang'];  
-      $r["role"]=$r3['role'];  
-    }           
-    array_push($data,$r);   
+
+    $persetujuan = [];
+    $sql2 = "SELECT jabatan.jabatan, persetujuan_event.status_proposal FROM persetujuan_event 
+    INNER JOIN account ON persetujuan_event.username = account.username INNER JOIN jabatan ON account.id_jabatan = jabatan.id 
+    WHERE persetujuan_event.id_event = ?";
+    $stmt2 = $conn->prepare($sql2);
+    $stmt2->bind_param("s",$r['id']);
+    $stmt2->execute();
+    $result2 = $stmt2->get_result();
+    if($result2->num_rows > 0) { 
+        while($r2=mysqli_fetch_assoc($result2)) {
+            array_push($persetujuan,$r2);
+        }
+      $r['persetujuan'] = $persetujuan;      
+      array_push($data,$r);   
+    }
   }
   $arr=["result"=>"success","data"=>$data];
 } else {

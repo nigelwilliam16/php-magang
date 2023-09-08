@@ -7,11 +7,17 @@ if($conn->connect_error) {
   $arr= ["result"=>"error","message"=>"unable to connect"];
 }
 extract($_POST);
+$parameter = json_decode($_POST['parameter']);
+$concenateParameter = "";
 
-$sql = "SELECT gimmick_cabang.id_gimmick AS id, gimmick.barang, gimmick.harga FROM gimmick_cabang 
-INNER JOIN gimmick ON gimmick_cabang.id_gimmick = gimmick.id WHERE gimmick_cabang.id_cabang = ?";
+if(!empty($parameter)) {
+  $concenateParameter = "AND NOT event_product.id_product = ".implode(" AND NOT event_product.id_product = ",$parameter);
+}
+
+$sql = "SELECT event_product.id_product AS id, product.jenis, event_product.harga FROM event_product 
+INNER JOIN product ON event_product.id_product = product.id WHERE event_product.id_event = ? ".$concenateParameter;
 $stmt = $conn->prepare($sql);
-$stmt->bind_param("s",$id);
+$stmt->bind_param("s",$id_event);
 $stmt->execute();
 $result = $stmt->get_result();
 $data=[];
@@ -21,7 +27,7 @@ if($result->num_rows > 0) {
   }
   $arr=["result"=>"success","data"=>$data];
 } else {
-  $arr=["result"=>"error","message"=>"sql error: $sql"];
+  $arr=["result"=>"error","data"=>$data];
 }
   
 echo json_encode($arr);
